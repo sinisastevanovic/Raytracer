@@ -1,0 +1,3 @@
+[submodule "Haketon"]
+	path = Haketon
+	url = https://github.com/sinisastevanovic/Haketon.git
