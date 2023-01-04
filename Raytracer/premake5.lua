@@ -11,11 +11,11 @@ project "Raytracer"
    {
        "../Haketon/ThirdParty/imgui",
        "../Haketon/ThirdParty/glfw/include",
+       "../Haketon/ThirdParty/glm",
 
        "../Haketon/Haketon/Source",
 
        "%{IncludeDir.VulkanSDK}",
-       "%{IncludeDir.glm}",
    }
 
    links
