@@ -1,7 +1,6 @@
+#include "Renderer.h"
 #include "Haketon/Application.h"
 #include "Haketon/EntryPoint.h"
-#include "Haketon/Image.h"
-#include "Haketon/Random.h"
 #include "Haketon/Timer.h"
 
 using namespace Haketon;
@@ -25,8 +24,10 @@ public:
         ViewportWidth_ = ImGui::GetContentRegionAvail().x;
         ViewportHeight_ = ImGui::GetContentRegionAvail().y;
 
-        if(Image_)
-            ImGui::Image(Image_->GetDescriptorSet(), {(float)Image_->GetWidth(), (float)Image_->GetHeight()});
+        auto image = Renderer_.GetFinalImage();
+        if(image)
+            ImGui::Image(image->GetDescriptorSet(), {(float)image->GetWidth(), (float)image->GetHeight()},
+            ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
         ImGui::PopStyleVar();
@@ -39,28 +40,15 @@ public:
     void Render()
     {
         Timer timer;
+
+        Renderer_.OnResize(ViewportWidth_, ViewportHeight_);
+        Renderer_.Render();
         
-        if (!Image_ || ViewportWidth_ != Image_->GetWidth() || ViewportHeight_ != Image_->GetHeight())
-        {
-            Image_ = std::make_shared<Image>(ViewportWidth_, ViewportHeight_, ImageFormat::RGBA);
-            delete[] ImageData_;
-            ImageData_ = new uint32_t[ViewportWidth_ * ViewportHeight_];
-        }
-
-        for (uint32_t i = 0; i < ViewportWidth_ * ViewportHeight_; i++)
-        {
-            ImageData_[i] = Random::UInt();
-            ImageData_[i] |= 0xff000000;
-        }
-
-        Image_->SetData(ImageData_);
-
         LastRenderTime_ = timer.ElapsedMs();
     }
 
 private:
-    std::shared_ptr<Image> Image_;
-    uint32_t* ImageData_ = nullptr;
+    Renderer Renderer_;
     uint32_t ViewportWidth_ = 0;
     uint32_t ViewportHeight_ = 0;
 
