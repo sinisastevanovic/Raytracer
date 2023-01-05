@@ -36,15 +36,17 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
     ImageData_ = new uint32_t[width * height];
 }
 
-void Renderer::Render()
+void Renderer::Render(const Camera& camera)
 {
+    Ray ray;
+    ray.Origin = camera.GetPosition();
+    
     for (uint32_t y = 0; y < FinalImage_->GetHeight(); y++)
     {
         for (uint32_t x = 0; x < FinalImage_->GetWidth(); x++)
         {
-            glm::vec2 coord = { (float)x / (float)FinalImage_->GetWidth(), (float)y / (float)FinalImage_->GetHeight() };
-            coord = coord * 2.0f - 1.0f; // -1 -> 1
-            glm::vec4 color = PerPixel(coord);
+            ray.Direction = camera.GetRayDirections()[x + y * FinalImage_->GetWidth()];
+            glm::vec4 color = TraceRay(ray);
             color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
             ImageData_[x + y * FinalImage_->GetWidth()] = Utils::ConvertToRGBA(color);
         }
@@ -53,10 +55,8 @@ void Renderer::Render()
     FinalImage_->SetData(ImageData_);
 }
 
-glm::vec4 Renderer::PerPixel(glm::vec2 coord)
+glm::vec4 Renderer::TraceRay(const Ray& ray)
 {
-    glm::vec3 rayOrigin(0.0f, 0.0f, 1.0f);
-    glm::vec3 rayDirection(coord.x, coord.y, -1.0f);
     glm::vec3 sphereOrigin(0.0f, 0.0f, 0.0f);
     float radius = 0.5f;
     //rayDirection = glm::normalize(rayDirection);
@@ -68,9 +68,9 @@ glm::vec4 Renderer::PerPixel(glm::vec2 coord)
     // r = sphere radius
     // t = hit distance
 
-    float a = glm::dot(rayDirection, rayDirection);
-    float b = 2.0f * glm::dot(rayOrigin, rayDirection);
-    float c = glm::dot(rayOrigin, rayOrigin) - radius * radius;
+    float a = glm::dot(ray.Direction, ray.Direction);
+    float b = 2.0f * glm::dot(ray.Origin, ray.Direction);
+    float c = glm::dot(ray.Origin, ray.Origin) - radius * radius;
 
     // Quadratic formula discriminant:
     // b^2 - 4ac
@@ -85,7 +85,7 @@ glm::vec4 Renderer::PerPixel(glm::vec2 coord)
     float t0 = (-b + glm::sqrt(discriminant)) / (2.0f * a);
     float closestT = (-b - glm::sqrt(discriminant)) / (2.0f * a);
 
-    glm::vec3 hitPosition = rayOrigin + rayDirection * closestT;
+    glm::vec3 hitPosition = ray.Origin + ray.Direction * closestT;
     glm::vec3 normal = glm::normalize(hitPosition - sphereOrigin);
 
     glm::vec3 lightDir = glm::normalize(glm::vec3(-1, -1, -1));

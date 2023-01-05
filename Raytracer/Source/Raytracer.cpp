@@ -1,3 +1,4 @@
+#include "Camera.h"
 #include "Renderer.h"
 #include "Haketon/Application.h"
 #include "Haketon/EntryPoint.h"
@@ -8,6 +9,15 @@ using namespace Haketon;
 class ExampleLayer : public Layer
 {
 public:
+    ExampleLayer()
+        : Camera_(45.0f, 0.1f, 100.0f)
+    {}
+    
+    virtual void OnUpdate(float deltaSeconds) override
+    {
+        Camera_.OnUpdate(deltaSeconds);
+    }
+    
     virtual void OnUIRender() override
     {
         ImGui::Begin("Settings");
@@ -42,13 +52,15 @@ public:
         Timer timer;
 
         Renderer_.OnResize(ViewportWidth_, ViewportHeight_);
-        Renderer_.Render();
+        Camera_.OnResize(ViewportWidth_, ViewportHeight_);
+        Renderer_.Render(Camera_);
         
         LastRenderTime_ = timer.ElapsedMs();
     }
 
 private:
     Renderer Renderer_;
+    Camera Camera_;
     uint32_t ViewportWidth_ = 0;
     uint32_t ViewportHeight_ = 0;
 
