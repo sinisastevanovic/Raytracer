@@ -13,7 +13,7 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
     Position_ = glm::vec3(0, 0, 5);
 }
 
-void Camera::OnUpdate(float deltaSeconds)
+bool Camera::OnUpdate(float deltaSeconds)
 {
     glm::vec2 mousePos = Haketon::Input::GetMousePosition();
     glm::vec2 mousePosDelta = (mousePos - LastMousePosition_) * 0.002f;
@@ -22,7 +22,7 @@ void Camera::OnUpdate(float deltaSeconds)
     if (!Haketon::Input::IsMouseButtonDown(Haketon::MouseButton::Right))
     {
         Haketon::Input::SetCursorMode(Haketon::CursorMode::Normal);
-        return;
+        return false;
     }
 
     Haketon::Input::SetCursorMode(Haketon::CursorMode::Locked);
@@ -84,6 +84,8 @@ void Camera::OnUpdate(float deltaSeconds)
         RecalculateView();
         RecalculateRayDirections();
     }
+
+    return moved;
 }
 
 void Camera::OnResize(uint32_t width, uint32_t height)

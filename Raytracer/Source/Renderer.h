@@ -12,6 +12,12 @@
 class Renderer
 {
 public:
+    struct Settings
+    {
+        bool Accumulate = true;
+    };
+    
+public:
     Renderer() = default;
 
     void OnResize(uint32_t width, uint32_t height);
@@ -19,6 +25,8 @@ public:
     
     std::shared_ptr<Haketon::Image> GetFinalImage() { return FinalImage_; }
 
+    void ResetFrameIndex() { FrameIndex_ = 1; }
+    Settings& GetSettings() { return Settings_; }
 private:
     struct HitPayload
     {
@@ -36,9 +44,13 @@ private:
     HitPayload Miss(const Ray& ray);
 private:
     std::shared_ptr<Haketon::Image> FinalImage_;
+    Settings Settings_;
 
     const Scene* ActiveScene_ = nullptr;
     const Camera* ActiveCamera_ = nullptr;
     
     uint32_t* ImageData_ = nullptr;
+    glm::vec4* AcccumulationData_ = nullptr;
+
+    uint32_t FrameIndex_ = 1;
 };

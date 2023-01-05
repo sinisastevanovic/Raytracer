@@ -49,13 +49,21 @@ public:
 
     virtual void OnUpdate(float deltaSeconds) override
     {
-        Camera_.OnUpdate(deltaSeconds);
+        if(Camera_.OnUpdate(deltaSeconds))
+        {
+            Renderer_.ResetFrameIndex();
+        }
     }
 
     virtual void OnUIRender() override
     {
         ImGui::Begin("Settings");
         ImGui::Text("Frametime: %.3fms", LastRenderTime_);
+        ImGui::Checkbox("Accumulate", &Renderer_.GetSettings().Accumulate);
+        if(ImGui::Button("Reset"))
+        {
+            Renderer_.ResetFrameIndex();
+        }
         ImGui::End();
 
         ImGui::Begin("Scene");
