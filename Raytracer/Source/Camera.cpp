@@ -10,7 +10,7 @@ Camera::Camera(float verticalFOV, float nearClip, float farClip)
     : VerticalFOV_(verticalFOV), NearClip_(nearClip), FarClip_(farClip)
 {
     ForwardDirection_ = glm::vec3(0, 0, -1);
-    Position_ = glm::vec3(0, 0, 3);
+    Position_ = glm::vec3(0, 0, 5);
 }
 
 void Camera::OnUpdate(float deltaSeconds)
