@@ -20,8 +20,25 @@ public:
     std::shared_ptr<Haketon::Image> GetFinalImage() { return FinalImage_; }
 
 private:
-    glm::vec4 TraceRay(const Scene& scene, const Ray& ray);
+    struct HitPayload
+    {
+        float HitDistance;
+        glm::vec3 WorldNormal;
+        glm::vec3 WorldPosition;
+
+        int ObjectIndex;
+    };
+    
+    glm::vec4 PerPixel(uint32_t x, uint32_t y);
+    
+    HitPayload TraceRay(const Ray& ray);
+    HitPayload ClosestHit(const Ray& ray, float hitDistance, int objectIndex);
+    HitPayload Miss(const Ray& ray);
 private:
     std::shared_ptr<Haketon::Image> FinalImage_;
+
+    const Scene* ActiveScene_ = nullptr;
+    const Camera* ActiveCamera_ = nullptr;
+    
     uint32_t* ImageData_ = nullptr;
 };
