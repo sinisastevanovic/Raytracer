@@ -46,6 +46,8 @@ private:
     std::shared_ptr<Haketon::Image> FinalImage_;
     Settings Settings_;
 
+    std::vector<uint32_t> HorizontalIterator_, VerticalIteractor_;
+
     const Scene* ActiveScene_ = nullptr;
     const Camera* ActiveCamera_ = nullptr;
     

@@ -1,6 +1,7 @@
 ﻿#include "Renderer.h"
 
 #include <iostream>
+#include <execution>
 
 #include "Haketon/Random.h"
 
@@ -36,6 +37,14 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
     ImageData_ = new uint32_t[width * height];
     delete[] AcccumulationData_;
     AcccumulationData_ = new glm::vec4[width * height];
+
+    HorizontalIterator_.resize(width);
+    VerticalIteractor_.resize(height);
+    for(uint32_t i = 0; i < width; i++)
+        HorizontalIterator_[i] = i;
+
+    for(uint32_t i = 0; i < height; i++)
+        VerticalIteractor_[i] = i;
 }
 
 void Renderer::Render(const Scene& scene, const Camera& camera)
@@ -44,7 +53,25 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
     ActiveCamera_ = &camera;
     if(FrameIndex_ == 1)
         memset(AcccumulationData_, 0, (size_t)FinalImage_->GetWidth() * (size_t)FinalImage_->GetHeight() * sizeof(glm::vec4));
+#define MT 1
+#if MT
+    std::for_each(std::execution::par, VerticalIteractor_.begin(), VerticalIteractor_.end(),
+        [this](uint32_t y)
+    {
+        std::for_each(std::execution::par, HorizontalIterator_.begin(), HorizontalIterator_.end(),
+            [this, y](uint32_t x)
+        {
+            glm::vec4 color = PerPixel(x, y);
+            AcccumulationData_[x + y * FinalImage_->GetWidth()] += color;
+
+            glm::vec4 accumulatedColor = AcccumulationData_[x + y * FinalImage_->GetWidth()];
+            accumulatedColor /= (float)FrameIndex_;
     
+            accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+            ImageData_[x + y * FinalImage_->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
+        });
+    });
+#else 
     for (uint32_t y = 0; y < FinalImage_->GetHeight(); y++)
     {
         for (uint32_t x = 0; x < FinalImage_->GetWidth(); x++)
@@ -59,7 +86,8 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
             ImageData_[x + y * FinalImage_->GetWidth()] = Utils::ConvertToRGBA(accumulatedColor);
         }
     }
-
+#endif
+    
     FinalImage_->SetData(ImageData_);
 
     if(Settings_.Accumulate)
