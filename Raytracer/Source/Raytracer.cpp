@@ -59,6 +59,7 @@ public:
     {
         ImGui::Begin("Settings");
         ImGui::Text("Frametime: %.3fms", LastRenderTime_);
+        ImGui::DragInt("Bounces", &Renderer_.GetSettings().Bounces, 1, 1, 100);
         ImGui::Checkbox("Accumulate", &Renderer_.GetSettings().Accumulate);
         if(ImGui::Button("Reset"))
         {

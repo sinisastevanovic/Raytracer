@@ -104,8 +104,7 @@ glm::vec4 Renderer::PerPixel(uint32_t x, uint32_t y)
 
     glm::vec3 color(0.0f);
     float multiplier = 1.0f;
-    int bounces = 5;
-    for (int i = 0; i < bounces; i++)
+    for (int i = 0; i < Settings_.Bounces; i++)
     {
         Renderer::HitPayload payload = TraceRay(ray);
         if(payload.HitDistance < 0.0f)
